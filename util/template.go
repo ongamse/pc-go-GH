@@ -22,17 +22,24 @@ func SafeRender(w http.ResponseWriter, r *http.Request, name string, data map[st
 }
 
 func RenderAsJson(w http.ResponseWriter, data ...interface{}) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "POST, GET")
-	w.Header().Set("Content-Type", "application/json")
-	b, err := json.Marshal(data)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+	package main
+
+	import (
+		"net/http"
+	)
+
+	func main() {
+		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+			origin := r.Header.Get("Origin")
+			if origin == "" {
+				w.Header().Set("Access-Control-Allow-Origin", "https://yourtrustedwebsite.com")
+			} else {
+				w.Header().Set("Access-Control-Allow-Origin", origin)
+			}
+			w.Write([]byte("Hello, CORS-enabled web service!"))
+		})
+		http.ListenAndServe(":8080", nil)
 	}
-	w.Write(b)
-}
 
 func UnSafeRender(w http.ResponseWriter, name string, data ...interface{}) {
 	template := template.Must(template.ParseGlob("templates/*"))
@@ -42,3 +49,4 @@ func UnSafeRender(w http.ResponseWriter, name string, data ...interface{}) {
 func ToHTML(text string) template.HTML {
 	return template.HTML(text)
 }
+
